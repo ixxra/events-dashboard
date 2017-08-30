@@ -1,2 +1,8 @@
-/* some style */
+[data-balloon]:after {
+    content: attr(data-balloon);
+    background-color: black;
+    color: white;
+    white-space: pre;
+    display: inline-block;
+}
 
