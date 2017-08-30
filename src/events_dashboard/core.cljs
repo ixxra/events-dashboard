@@ -84,7 +84,7 @@
 
 
 (defn format-event [ev]
-  (let [formatted (str (:name ev) "<br />" (:desc ev) "&#xa;Ubicación: " (:loc ev))]
+  (let [formatted (str (ev "name") "<br />" (ev "desc") "&#xa;Ubicación: " (ev "loc"))]
     {:dangerouslySetInnerHTML {:__html formatted}}
     formatted))
 
@@ -93,8 +93,10 @@
   ([event] [:td {:data-balloon (format-event event)
                  :data-balloon-pos "up"
                  :data-balloon-length "large"
-                 :data-html true}
-            (:name event)]))
+                 :data-html true
+                 :style {:background-color (event "color")
+                         :color "white"}}
+            (event "name")]))
 
 
 (defn event-cell [events year month day]
@@ -156,21 +158,39 @@
          (for [u (rest users)] [:tr [:td u]  (repeat 7 [:td])])))]]))
 
 
-(defn calendar []
+(defn calendar [users events]
   (let [d date-state
         cal (atom (currentCal d))]
     [:div.cal.container
      [:div.header.toolbar
       [cal-picker cal d]]
-     [cal-frame users cal re-events]]))
+     [cal-frame users cal events]]))
 
 
-(defn dashboard []
+(defn dashboard [users events]
   [:div
    [:h1 (:text @app-state)]
-   [calendar]])
+   [calendar users events]])
 
-(reagent/render-component [dashboard]
+
+(defn random-color-string [&_]
+  (let [r (rand-int 255)
+        g (rand-int 255)
+        b (rand-int 255)]
+    (str "rgb(" r "," g "," b ")")))
+
+(defn inject-color-events [users-events]
+  (let [ids (for [[u events] users-events
+                  [d w] events] (w "name"))
+        color (into {} (zipmap ids (map random-color-string ids)))]
+    (into {} (for [[u events] users-events]
+               [u (into {} (for [[d w] events]
+                             [d (assoc w "color" (color (w "name")))]))] ))))
+
+
+(reagent/render-component [dashboard
+                           (js->clj (.-users js/document))
+                           (inject-color-events (js->clj(.-events js/document)))]
                           (. js/document (getElementById "app")))
 
 (defn on-js-reload []
