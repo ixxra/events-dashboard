@@ -73,8 +73,8 @@
                          (reset-cal)))]
     (fn [] 
       [:div.row
-       [:div.col-md-8 [:h3 (monthName (:month @cal)) " " (:year @cal)]]
-       [:div.col-md-4
+       [:div.col-sm-8 [:h3 (monthName (:month @cal)) " " (:year @cal)]]
+       [:div.col-sm-4
         [:div.btn-toolbar.float-right
          [:input.btn.btn-primary {:type "button"  :value "<"
                                   :on-click down}]
@@ -111,16 +111,16 @@
         month (:month @cal)
         year (:year @cal)]
     (list
-     [:tr [:td] [:td] pre-cal
-      (for [i (range start (+ 1 end))] [:td i])]
-     [:tr [:td.align-middle {:rowSpan (count users)} "Matutino"] [:td (first users)]
+     [:tr [:td.weekdays] [:td.weekdays] (repeat offset [:td.weekdays])
+      (for [i (range start (+ 1 end))] [:td.weekdays.text-right i])]
+     [:tr [:td.align-middle.text-center.bg-info.text-white {:rowSpan (count users)} "Matutino"] [:td (first users)]
       pre-cal
       (for [i (range start (+ 1 end))] (event-cell (events (first users)) year month i))]
      (for [u (rest users)]
        [:tr [:td u] pre-cal
         (for [i (range start (+ 1 end))] (event-cell (events u) year month i))])
      
-     [:tr [:td.align-middle {:rowSpan (count users)} "Vespertino"] [:td (first users)]
+     [:tr [:td.align-middle.text-center.bg-warning.text-white {:rowSpan (count users)} "Vespertino"] [:td (first users)]
       pre-cal
       (for [i (range start (+ 1 end))] (event-cell (events (first users)) year month i))]
      (for [u (rest users)]
