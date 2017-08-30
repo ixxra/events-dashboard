@@ -72,15 +72,16 @@
         today (fn [] (do (.set d (Date.))
                          (reset-cal)))]
     (fn [] 
-      [:div
-       [:div.btn-toolbar
-        [:div.btn.btn-default (monthName (:month @cal)) " " (:year @cal)]
-        [:input.btn.btn-primary {:type "button"  :value "<"
-                                 :on-click down}]
-        [:input.btn.btn-default {:type "button"  :value "Hoy"
-                                 :on-click today}]
-        [:input.btn.btn-primary {:type "button" :value ">"
-                                 :on-click up}]]])))
+      [:div.row
+       [:div.col-md-8 [:h3 (monthName (:month @cal)) " " (:year @cal)]]
+       [:div.col-md-4
+        [:div.btn-toolbar.float-right
+         [:input.btn.btn-primary {:type "button"  :value "<"
+                                  :on-click down}]
+         [:input.btn.btn-success {:type "button"  :value "Hoy"
+                                  :on-click today}]
+         [:input.btn.btn-primary {:type "button" :value ">"
+                                  :on-click up}]]]])))
 
 
 (defn format-event [ev]
@@ -169,7 +170,7 @@
 
 (defn dashboard [users events]
   [:div
-   [:h1 (:text @app-state)]
+   [:h1.text-center (:text @app-state)]
    [calendar users events]])
 
 
