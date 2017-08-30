@@ -50,7 +50,7 @@
 
 (defmacro thead []
   [:thead
-   [:tr
+   [:tr.weekdays
     [:th ""]
     [:th ""]
     [:th "Lunes"]
@@ -113,14 +113,14 @@
     (list
      [:tr [:td] [:td] pre-cal
       (for [i (range start (+ 1 end))] [:td i])]
-     [:tr [:td {:rowSpan (count users)} "Matutino"] [:td (first users)]
+     [:tr [:td.align-middle {:rowSpan (count users)} "Matutino"] [:td (first users)]
       pre-cal
       (for [i (range start (+ 1 end))] (event-cell (events (first users)) year month i))]
      (for [u (rest users)]
        [:tr [:td u] pre-cal
         (for [i (range start (+ 1 end))] (event-cell (events u) year month i))])
      
-     [:tr [:td {:rowSpan (count users)} "Vespertino"] [:td (first users)]
+     [:tr [:td.align-middle {:rowSpan (count users)} "Vespertino"] [:td (first users)]
       pre-cal
       (for [i (range start (+ 1 end))] (event-cell (events (first users)) year month i))]
      (for [u (rest users)]
