@@ -2,9 +2,9 @@
   (:require [reagent.core :as reagent :refer [atom]])
   (:import [goog.date DateTime Date Interval]))
 
-(enable-console-print!)
+;(enable-console-print!)
 
-(defonce app-state (atom {:text "Calendario"}))
+(defonce app-state (atom {:text "Calendario de equipo"}))
 
 (def date-state (Date.))
 (def users ["Marco" "Carlos" "Minerva"])
@@ -112,20 +112,20 @@
         year (:year @cal)]
     (list
      [:tr [:td.weekdays] [:td.weekdays] (repeat offset [:td.weekdays])
-      (for [i (range start (+ 1 end))] [:td.weekdays.text-right i])]
+      (for [i (range start (+ 1 end))] ^{:key i}[:td.weekdays.text-right i])]
      [:tr [:td.align-middle.text-center.bg-info.text-white {:rowSpan (count users)} "Matutino"] [:td (first users)]
       pre-cal
-      (for [i (range start (+ 1 end))] (event-cell (events (first users)) year month i))]
+      (for [i (range start (+ 1 end))] ^{:key i} (event-cell (events (first users)) year month i))]
      (for [u (rest users)]
        [:tr [:td u] pre-cal
-        (for [i (range start (+ 1 end))] (event-cell (events u) year month i))])
+        (for [i (range start (+ 1 end))] ^{:key i}(event-cell (events u) year month i))])
      
      [:tr [:td.align-middle.text-center.bg-warning.text-white {:rowSpan (count users)} "Vespertino"] [:td (first users)]
       pre-cal
-      (for [i (range start (+ 1 end))] (event-cell (events (first users)) year month i))]
+      (for [i (range start (+ 1 end))] ^{:key i}(event-cell (events (first users)) year month i))]
      (for [u (rest users)]
-       [:tr [:td u] pre-cal
-        (for [i (range start (+ 1 end))] (event-cell (events u) year month i))]))))
+       ^{:key u}[:tr [:td u] pre-cal
+        (for [i (range start (+ 1 end))] ^{:key i}(event-cell (events u) year month i))]))))
 
 (defn cal-frame [users cal events]
   (let [days (mycal (:totalDays @cal) (:firstDay @cal))
@@ -142,7 +142,7 @@
       (week-block (:firstDay @cal) 1 (- 7 (:firstDay @cal)) users events cal)
       (for [i (range (- 8 (:firstDay @cal)) (+ 1 (:totalDays @cal)) 7)]
         (let [end (min (+ 6 i) (:totalDays @cal))]
-          (week-block 0 i end users events cal)))]]))
+          ^{:key i}(week-block 0 i end users events cal)))]]))
       
 (defn cal-frame-old [users cal]
   (let [days (mycal (:totalDays @cal) (:firstDay @cal))
@@ -154,9 +154,9 @@
         (concat
          [[:tr [:td] [:td] (map #(-> [:td.text-sm-right % ]) w)]];Week days
          [[:tr [:td {:rowSpan (count users)} "Matutino"][:td (first users)] (repeat 7 [static-cell {:name "Visita" :desc "Visita academica\nEducacion y patria"}])]]
-         (for [u (rest users)] [:tr [:td u]  (repeat 7 [:td])])
+         (for [u (rest users)] ^{:key u}[:tr [:td u]  (repeat 7 [:td])])
          [[:tr [:td {:rowSpan (count users)} "Vespertino"][:td (first users)] (repeat 7 [:td])]]
-         (for [u (rest users)] [:tr [:td u]  (repeat 7 [:td])])))]]))
+         (for [u (rest users)] ^{:key u}[:tr [:td u]  (repeat 7 [:td])])))]]))
 
 
 (defn calendar [users events]
@@ -184,15 +184,27 @@
   (let [ids (for [[u events] users-events
                   [d w] events] (w "name"))
         color (into {} (zipmap ids (map random-color-string ids)))]
+    (.log js/console users-events)
     (into {} (for [[u events] users-events]
                [u (into {} (for [[d w] events]
                              [d (assoc w "color" (color (w "name")))]))] ))))
 
 
 (reagent/render-component [dashboard
-                           (js->clj (.-users js/document))
-                           (inject-color-events (js->clj(.-events js/document)))]
+                           (js->clj (.-users js/window))
+                           (inject-color-events (js->clj(.-events js/window)))]
                           (. js/document (getElementById "app")))
+
+
+
+(defn ^:export start_app
+  "Use start_app in production to bootrapp the application, passing
+  data parameters as required"
+  [users events]
+  (reagent/render-component [dashboard
+                             (js->clj users)
+                             (inject-color-events (js->clj events))]
+                            (. js/document (getElementById "app"))))
 
 (defn on-js-reload []
   ;; optionally touch your app-state to force rerendering depending on
